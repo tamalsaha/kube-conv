@@ -1,5 +1,5 @@
-hash: 1e5c21219d3490dbae6475cfcaaf5e1721902e6db7706cd6415200ec38540eeb
-updated: 2017-10-29T21:13:45.662606234-07:00
+hash: bd7d1aac524cc1bc0954bde098d26e13d481aad98290828e3139d2fd00a1d783
+updated: 2018-03-01T11:07:24.865080028-08:00
 imports:
 - name: cloud.google.com/go
   version: 3b1ae45394a234c385be014e9a488f2bb6eef821
@@ -7,7 +7,7 @@ imports:
   - compute/metadata
   - internal
 - name: github.com/appscode/go
-  version: c01120782e8b487d1c86ab4299241edfe36a3ca2
+  version: c312c0a1fe0d4988480073287b8633fc5a244647
   subpackages:
   - context
   - log
@@ -61,7 +61,7 @@ imports:
 - name: github.com/google/gofuzz
   version: 44d81051d367757e1c7c6a5a86423ece9afcf63c
 - name: github.com/google/uuid
-  version: e367a344cbe8e08149f9951115dc299ebd42b919
+  version: dec09d789f3dba190787f8b4454c7d3c936fed9e
 - name: github.com/googleapis/gnostic
   version: 0c5108395e2debce0d731cf0287ddf7242066aba
   subpackages:
@@ -97,6 +97,8 @@ imports:
   - jwriter
 - name: github.com/peterbourgon/diskv
   version: 5f041e8faa004a95c88a202771f4cc3e991971e6
+- name: github.com/pkg/errors
+  version: 30136e27e2ac8d167177e8a583aa4c3fea5be833
 - name: github.com/PuerkitoBio/purell
   version: 8a290539e2e8629dbc4e6bad948158f790ec31f4
 - name: github.com/PuerkitoBio/urlesc
@@ -104,7 +106,7 @@ imports:
 - name: github.com/spf13/pflag
   version: e57e3eeb33f795204c1ca35f56c44f83227c6e66
 - name: github.com/tamalsaha/go-oneliners
-  version: 4ca214c0460d9077e49e3ef394785f92408f7699
+  version: 82a97ec58df4809a2bc57ebbbcc1e6a2feb78111
 - name: golang.org/x/crypto
   version: 81e90905daefcd6fd217b62423c0908922eadb30
   subpackages:
@@ -193,7 +195,7 @@ imports:
   - storage/v1
   - storage/v1beta1
 - name: k8s.io/apiextensions-apiserver
-  version: 5bc0d8f05a92b3a09bcf1a9db442a29c0b7a514d
+  version: baebb08fe17229010983befa9bcf1e9d840ac83b
   subpackages:
   - pkg/apis/apiextensions
   - pkg/apis/apiextensions/v1beta1
