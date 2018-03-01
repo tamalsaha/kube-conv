@@ -1,15 +1,19 @@
 package main
 
 import (
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"github.com/appscode/go/log"
-	crd_cs "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
-	"k8s.io/client-go/tools/clientcmd"
-	"k8s.io/client-go/kubernetes"
-	_ "k8s.io/client-go/plugin/pkg/client/auth"
-	"github.com/tamalsaha/go-oneliners"
-	"k8s.io/client-go/util/homedir"
 	"path/filepath"
+
+	"github.com/appscode/kutil/meta"
+	"github.com/appscode/go/log"
+	"k8s.io/api/apps/v1beta2"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/kubernetes/scheme"
+	_ "k8s.io/client-go/plugin/pkg/client/auth"
+	"k8s.io/client-go/tools/clientcmd"
+	"k8s.io/client-go/util/homedir"
+	"fmt"
+
 )
 
 func main() {
@@ -23,24 +27,17 @@ func main() {
 
 	kc := kubernetes.NewForConfigOrDie(config)
 
-
-
-	nodes, err := kc.CoreV1().Nodes().List(metav1.ListOptions{})
+	dep_v1, err := kc.AppsV1().Deployments("kube-system").Get("pack-server", metav1.GetOptions{})
 	if err != nil {
 		log.Fatal(err)
 	}
-	if nodes != nil {
-		for _, node := range nodes.Items {
-			oneliners.FILE(node.Name)
-		}
-	}
+	dep_v1beta2 := &v1beta2.Deployment{}
 
-	crdClient := crd_cs.NewForConfigOrDie(config)
-	crds, err := crdClient.ApiextensionsV1beta1().CustomResourceDefinitions().List(metav1.ListOptions{})
+	err = scheme.Scheme.Convert(dep_v1, dep_v1beta2, nil)
 	if err != nil {
 		log.Fatal(err)
 	}
-	for _, crd := range crds.Items {
-		oneliners.FILE(crd.Name)
-	}
+	fmt.Println(meta.MarshalToYAML(dep_v1beta2, v1beta2.SchemeGroupVersion))
+
+
 }
