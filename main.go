@@ -22,6 +22,9 @@ func main() {
 	}
 
 	kc := kubernetes.NewForConfigOrDie(config)
+
+
+
 	nodes, err := kc.CoreV1().Nodes().List(metav1.ListOptions{})
 	if err != nil {
 		log.Fatal(err)
