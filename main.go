@@ -6,6 +6,8 @@ import (
 	"github.com/appscode/kutil/meta"
 	"github.com/appscode/go/log"
 	"k8s.io/api/apps/v1beta2"
+	"k8s.io/api/apps/v1beta1"
+	_ "k8s.io/api/extensions/v1beta1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/kubernetes/scheme"
@@ -14,9 +16,13 @@ import (
 	"k8s.io/client-go/util/homedir"
 	"fmt"
 
+	"k8s.io/api/apps/v1"
 )
 
 func main() {
+	transform := func(in *v1beta1.Deployment) *v1beta1.Deployment { return in}
+
+
 	masterURL := ""
 	kubeconfigPath := filepath.Join(homedir.HomeDir(), ".kube/config")
 
@@ -27,17 +33,31 @@ func main() {
 
 	kc := kubernetes.NewForConfigOrDie(config)
 
-	dep_v1, err := kc.AppsV1().Deployments("kube-system").Get("pack-server", metav1.GetOptions{})
+	in_v1, err := kc.AppsV1().Deployments("kube-system").Get("pack-server", metav1.GetOptions{})
 	if err != nil {
 		log.Fatal(err)
 	}
-	dep_v1beta2 := &v1beta2.Deployment{}
 
-	err = scheme.Scheme.Convert(dep_v1, dep_v1beta2, nil)
+	// v1 -> v1beta1
+	in_v1beta1 := &v1beta1.Deployment{}
+	err = scheme.Scheme.Convert(in_v1, in_v1beta1, nil)
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Println(meta.MarshalToYAML(dep_v1beta2, v1beta2.SchemeGroupVersion))
+
+	mod_v1beta1 := transform(in_v1beta1.DeepCopy())
+
+	mod_v1 := &v1.Deployment{}
+	err = scheme.Scheme.Convert(mod_v1beta1, mod_v1, nil)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	meta.CreateStrategicPatch(in_v1, mod_v1)
+
+
+	data_v1b1, err := meta.MarshalToYAML(in_v1beta1, v1beta2.SchemeGroupVersion)
+	fmt.Println(string(data_v1b1))
 
 
 }
