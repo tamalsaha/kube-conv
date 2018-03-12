@@ -9,3 +9,5 @@ import:
   version: kubernetes-1.9.3
 - package: k8s.io/client-go
   version: v6.0.0
+- package: k8s.io/kubernetes
+  version: v1.9.0
