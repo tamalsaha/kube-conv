@@ -24,6 +24,7 @@ func main() {
 		},
 	}
 
+	// src -> internal -> dst
 	internalObj := &apps.StatefulSet{}
 	err := legacyscheme.Scheme.Convert(v1Obj, internalObj, nil)
 	if err != nil {
