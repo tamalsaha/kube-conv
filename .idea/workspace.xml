@@ -2,8 +2,6 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="822a2c34-4972-4464-b45d-9d5c6037b661" name="Default" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/glide.lock" beforeDir="false" afterPath="$PROJECT_DIR$/glide.lock" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main.go" beforeDir="false" afterPath="$PROJECT_DIR$/main.go" afterDir="false" />
     </list>
     <ignored mask="rest-client.private.env.json" />
@@ -22,8 +20,11 @@
           <file leaf-file-name="main.go" pinned="false" current-in-tab="true">
             <entry file="file://$PROJECT_DIR$/main.go">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="-408">
-                  <caret line="15" column="7" selection-start-line="15" selection-start-column="7" selection-end-line="15" selection-end-column="7" />
+                <state relative-caret-position="-633">
+                  <caret line="48" selection-start-line="48" selection-end-line="48" />
+                  <folding>
+                    <element signature="e#14#730#0" expanded="true" />
+                  </folding>
                 </state>
               </provider>
             </entry>
@@ -356,7 +357,7 @@
       <window_info anchor="bottom" id="Event Log" order="7" side_tool="true" />
       <window_info anchor="right" id="Database" order="3" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.3297414" />
-      <window_info active="true" anchor="bottom" id="Run" order="2" visible="true" weight="0.3286638" />
+      <window_info anchor="bottom" id="Run" order="2" weight="0.3286638" />
       <window_info anchor="bottom" id="Version Control" order="7" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info anchor="bottom" id="Terminal" order="7" />
@@ -544,8 +545,11 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/main.go">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-408">
-          <caret line="15" column="7" selection-start-line="15" selection-start-column="7" selection-end-line="15" selection-end-column="7" />
+        <state relative-caret-position="-633">
+          <caret line="48" selection-start-line="48" selection-end-line="48" />
+          <folding>
+            <element signature="e#14#730#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>

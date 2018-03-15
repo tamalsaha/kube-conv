@@ -30,6 +30,24 @@ func main() {
 			ObservedGeneration: 1,
 		},
 	}
+
+	/*
+	// working example:
+
+	// src -> internal -> dst
+	internalObj := &apps.StatefulSet{}
+	err := legacyscheme.Scheme.Convert(v1Obj, internalObj, nil)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	v1beta1Obj := &v1beta1.StatefulSet{}
+	err = legacyscheme.Scheme.Convert(internalObj, v1beta1Obj, nil)
+	if err != nil {
+		log.Fatal(err)
+	}
+	*/
+
 	var err error
 
 	// apimachinery/pkg/runtime/serializer/versioning/versioning.go
