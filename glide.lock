@@ -1,5 +1,5 @@
 hash: d806f10861573e3c393d9bdf259da359c1c8e9b0598d43a47e43e1a887dbb20d
-updated: 2018-03-12T06:27:21.925499227-07:00
+updated: 2018-03-14T23:11:52.107759822-07:00
 imports:
 - name: cloud.google.com/go
   version: 3b1ae45394a234c385be014e9a488f2bb6eef821
@@ -197,7 +197,7 @@ imports:
   - pkg/watch
   - third_party/forked/golang/reflect
 - name: k8s.io/apiserver
-  version: 1270e9f1ad9eaf6127691df90af0836f7e152495
+  version: 91e14f394e4796abf5a994a349a222e7081d86b6
   subpackages:
   - pkg/features
   - pkg/util/feature
