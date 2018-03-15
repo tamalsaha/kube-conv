@@ -22,6 +22,7 @@ import (
 	"bytes"
 	"fmt"
 	"k8s.io/apimachinery/pkg/runtime/schema"
+	"k8s.io/kubernetes/pkg/apis/apps"
 )
 
 func main() {
@@ -63,30 +64,32 @@ func main() {
 
 	gvk := v1beta1.SchemeGroupVersion.WithKind("StatefulSet")
 
-	//internalObj := &apps.StatefulSet{}
-	//o1, o2, err := codec.Decode(v1Buf.Bytes(), &gvk, internalObj)
-	//if err != nil {
-	//	log.Fatal(err)
-	//}
-	//fmt.Println(o1)
-	//fmt.Println(o2)
-	//
-	//v1beta1Obj := &v1beta1.StatefulSet{}
-	//o1, o2, err = codec.Decode(v1Buf.Bytes(), &gvk, v1beta1Obj)
-	//if err != nil {
-	//	log.Fatal(err)
-	//}
-	//fmt.Println(o1)
-	//fmt.Println(o2)
-
-	d2 := legacyscheme.Codecs.DecoderToVersion(codec, GroupVersions{})
-	v1beta1Obj := &v1beta1.StatefulSet{}
-	o1, o2, err := d2.Decode(v1Buf.Bytes(), &gvk, v1beta1Obj)
+	internalObj := &apps.StatefulSet{}
+	o1, o2, err := codec.Decode(v1Buf.Bytes(), &gvk, internalObj)
 	if err != nil {
 		log.Fatal(err)
 	}
 	fmt.Println(o1)
 	fmt.Println(o2)
+
+	v1beta1Obj := &v1beta1.StatefulSet{}
+	// PANIC !!!
+	// panic: reflect: call of reflect.Value.IsNil on int64 Value
+	o1, o2, err = codec.Decode(v1Buf.Bytes(), &gvk, v1beta1Obj)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println(o1)
+	fmt.Println(o2)
+
+	//d2 := legacyscheme.Codecs.DecoderToVersion(codec, GroupVersions{})
+	//v1beta1Obj := &v1beta1.StatefulSet{}
+	//o1, o2, err := d2.Decode(v1Buf.Bytes(), &gvk, v1beta1Obj)
+	//if err != nil {
+	//	log.Fatal(err)
+	//}
+	//fmt.Println(o1)
+	//fmt.Println(o2)
 
 	//decoder := legacyscheme.Codecs.DecoderToVersion(codec, v1beta1.SchemeGroupVersion)
 	//v1beta1Obj := &v1beta1.StatefulSet{}

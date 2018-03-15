@@ -20,8 +20,8 @@
           <file leaf-file-name="main.go" pinned="false" current-in-tab="true">
             <entry file="file://$PROJECT_DIR$/main.go">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="-633">
-                  <caret line="48" selection-start-line="48" selection-end-line="48" />
+                <state relative-caret-position="180">
+                  <caret line="75" column="16" selection-start-line="75" selection-start-column="16" selection-end-line="75" selection-end-column="16" />
                   <folding>
                     <element signature="e#14#730#0" expanded="true" />
                   </folding>
@@ -357,7 +357,7 @@
       <window_info anchor="bottom" id="Event Log" order="7" side_tool="true" />
       <window_info anchor="right" id="Database" order="3" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.3297414" />
-      <window_info anchor="bottom" id="Run" order="2" weight="0.3286638" />
+      <window_info active="true" anchor="bottom" id="Run" order="2" visible="true" weight="0.3286638" />
       <window_info anchor="bottom" id="Version Control" order="7" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info anchor="bottom" id="Terminal" order="7" />
@@ -545,8 +545,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/main.go">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-633">
-          <caret line="48" selection-start-line="48" selection-end-line="48" />
+        <state relative-caret-position="180">
+          <caret line="75" column="16" selection-start-line="75" selection-start-column="16" selection-end-line="75" selection-end-column="16" />
           <folding>
             <element signature="e#14#730#0" expanded="true" />
           </folding>
