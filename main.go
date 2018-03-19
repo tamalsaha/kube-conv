@@ -1,6 +1,8 @@
 package main
 
 import (
+	api "github.com/appscode/stash/apis/stash/v1alpha1"
+	"github.com/appscode/stash/client/clientset/versioned/scheme"
 	"k8s.io/apimachinery/pkg/runtime"
 	// batchv1 "k8s.io/api/batch/v1"
 	// batchv1beta1 "k8s.io/api/batch/v1beta1"
@@ -29,8 +31,6 @@ import (
 )
 
 var ss = `{
-  "apiVersion": "apps/v1",
-  "kind": "StatefulSet",
   "metadata": {
     "creationTimestamp": null
   },
@@ -53,6 +53,49 @@ var ss = `{
   }
 }`
 
+var rs = `{
+  "metadata": {
+    "name": "stash-demo",
+    "namespace": "default"
+  },
+  "spec": {
+    "selector": {
+      "matchLabels": {
+        "app": "stash-demo"
+      }
+    },
+    "fileGroups": [
+      {
+        "path": "/source/data",
+        "retentionPolicyName": "keep-last-5"
+      }
+    ],
+    "backend": {
+      "local": {
+        "mountPath": "/safe/data",
+        "hostPath": {
+          "path": "/data/stash-test/restic-repo"
+        }
+      },
+      "storageSecretName": "stash-demo"
+    },
+    "schedule": "@every 1m",
+    "volumeMounts": [
+      {
+        "mountPath": "/source/data",
+        "name": "source-data"
+      }
+    ],
+    "retentionPolicies": [
+      {
+        "name": "keep-last-5",
+        "keepLast": 5,
+        "prune": true
+      }
+    ]
+  }
+}`
+
 func transform(obj runtime.Object) (runtime.Object, error) {
 	var n int32 = 2
 	r := obj.(*v1beta1.StatefulSet)
@@ -72,53 +115,98 @@ func xyz() runtime.Codec {
 var Codec = xyz()
 
 type VersionedCodec struct {
+	scheme        *runtime.Scheme
 	encodeVersion runtime.GroupVersioner
 	decodeVersion runtime.GroupVersioner
 }
 
 func (c VersionedCodec) Encode(obj runtime.Object, w io.Writer) error {
-	internal, err := legacyscheme.Scheme.UnsafeConvertToVersion(obj, runtime.InternalGroupVersioner)
-	if err != nil {
-		return err
-	}
+	var out runtime.Object
+	if c.encodeVersion == c.decodeVersion {
+		out = obj
+	} else {
+		internal, err := c.scheme.UnsafeConvertToVersion(obj, runtime.InternalGroupVersioner)
+		if err != nil {
+			return err
+		}
 
-	out, err := legacyscheme.Scheme.UnsafeConvertToVersion(internal, c.encodeVersion)
-	if err != nil {
-		return err
+		out, err = c.scheme.UnsafeConvertToVersion(internal, c.encodeVersion)
+		if err != nil {
+			return err
+		}
 	}
-	legacyscheme.Scheme.Default(out)
+	c.scheme.Default(out)
 
 	return Codec.Encode(out, w)
 }
 
-func (c VersionedCodec) Decode(data []byte, _ *schema.GroupVersionKind, _ runtime.Object) (runtime.Object, *schema.GroupVersionKind, error) {
-	in, gvk, err := Codec.Decode(data, nil, nil)
+func (c VersionedCodec) Decode(data []byte, gvk *schema.GroupVersionKind, _ runtime.Object) (runtime.Object, *schema.GroupVersionKind, error) {
+	in, gvk, err := Codec.Decode(data, gvk, nil)
 	if err != nil {
 		return nil, gvk, err
 	}
-	legacyscheme.Scheme.Default(in)
+	if gvk.GroupVersion() != c.encodeVersion {
+		return nil, gvk, fmt.Errorf("data expected to be of version %s, found %s", c.encodeVersion, gvk)
+	}
+	c.scheme.Default(in)
+	in.GetObjectKind().SetGroupVersionKind(*gvk)
 
-	internal, err := legacyscheme.Scheme.UnsafeConvertToVersion(in, runtime.InternalGroupVersioner)
+	if c.encodeVersion == c.decodeVersion {
+		return in, gvk, err
+	}
+
+	internal, err := c.scheme.UnsafeConvertToVersion(in, runtime.InternalGroupVersioner)
 	if err != nil {
 		return nil, gvk, err
 	}
 
-	out, err := legacyscheme.Scheme.UnsafeConvertToVersion(internal, c.decodeVersion)
+	out, err := c.scheme.UnsafeConvertToVersion(internal, c.decodeVersion)
 	return out, gvk, err
 }
 
 func main() {
+	scheme.AddToScheme(legacyscheme.Scheme)
+	//legacyscheme.Registry.AllPreferredGroupVersions()
+	//legacyscheme.Registry.EnabledVersions()
+
+	raw := []byte(rs)
+	gvk := api.SchemeGroupVersion.WithKind("Restic")
+
+	c := VersionedCodec{
+		scheme: legacyscheme.Scheme,
+		encodeVersion: api.SchemeGroupVersion,
+		decodeVersion: api.SchemeGroupVersion,
+	}
+	cur, gvk2, err := c.Decode(raw, &gvk, nil)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println(gvk2)
+
+	var buf bytes.Buffer
+	err = c.Encode(cur, &buf)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println(buf.String())
+}
+
+func main4() {
+	scheme.AddToScheme(legacyscheme.Scheme)
+	//legacyscheme.Registry.AllPreferredGroupVersions()
+	//legacyscheme.Registry.EnabledVersions()
+
 	raw := []byte(ss)
 
 	c := VersionedCodec{
 		encodeVersion: v1.SchemeGroupVersion,
 		decodeVersion: v1beta1.SchemeGroupVersion,
 	}
-	cur, gvk, err := c.Decode(raw, nil, nil)
+	cur, _, err := c.Decode(raw, nil, nil)
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Println(gvk)
+	//fmt.Println(gvk)
 
 	mod, err := transform(cur)
 	if err != nil {
