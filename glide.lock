@@ -1,5 +1,5 @@
 hash: d806f10861573e3c393d9bdf259da359c1c8e9b0598d43a47e43e1a887dbb20d
-updated: 2018-03-19T02:20:24.989437232-07:00
+updated: 2018-03-28T04:45:47.9821277-07:00
 imports:
 - name: cloud.google.com/go
   version: 3b1ae45394a234c385be014e9a488f2bb6eef821
@@ -12,8 +12,10 @@ imports:
   - context
   - log
 - name: github.com/appscode/stash
-  version: 55309b0f043fc71c38511ba2b2774208d57e8f4b
+  version: 301fb68c1c152ea7d40c38e0c14448164ab4cdde
   subpackages:
+  - apis/repositories
+  - apis/repositories/v1alpha1
   - apis/stash
   - apis/stash/v1alpha1
   - client/clientset/versioned/scheme
@@ -154,14 +156,34 @@ imports:
 - name: k8s.io/api
   version: acf347b865f29325eb61f4cd2df11e86e073a5ee
   subpackages:
+  - admissionregistration/v1alpha1
+  - admissionregistration/v1beta1
   - apps/v1
   - apps/v1beta1
   - apps/v1beta2
+  - authentication/v1
+  - authentication/v1beta1
+  - authorization/v1
+  - authorization/v1beta1
+  - autoscaling/v1
+  - autoscaling/v2beta1
   - batch/v1
   - batch/v1beta1
   - batch/v2alpha1
+  - certificates/v1beta1
   - core/v1
+  - events/v1beta1
   - extensions/v1beta1
+  - networking/v1
+  - policy/v1beta1
+  - rbac/v1
+  - rbac/v1alpha1
+  - rbac/v1beta1
+  - scheduling/v1alpha1
+  - settings/v1alpha1
+  - storage/v1
+  - storage/v1alpha1
+  - storage/v1beta1
 - name: k8s.io/apiextensions-apiserver
   version: f1425805c0335c1f5b23e70f0154747b3df5a16a
   subpackages:
@@ -218,6 +240,7 @@ imports:
 - name: k8s.io/client-go
   version: 78700dec6369ba22221b72770783300f143df150
   subpackages:
+  - kubernetes/scheme
   - pkg/version
   - plugin/pkg/client/auth
   - plugin/pkg/client/auth/azure

@@ -1,6 +1,10 @@
 package main
 
 import (
+	"bytes"
+	"fmt"
+	"io"
+
 	api "github.com/appscode/stash/apis/stash/v1alpha1"
 	"github.com/appscode/stash/client/clientset/versioned/scheme"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -22,9 +26,6 @@ import (
 	_ "k8s.io/kubernetes/pkg/apis/core/install"
 	_ "k8s.io/kubernetes/pkg/apis/extensions/install"
 	//	"k8s.io/apimachinery/pkg/runtime"
-	"bytes"
-	"fmt"
-	"io"
 
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/kubernetes/pkg/apis/apps"
@@ -34,67 +35,40 @@ var ss = `{
   "metadata": {
     "creationTimestamp": null
   },
-  "spec": {
-    "selector": null,
-    "serviceName": "",
-    "template": {
-      "metadata": {
-        "creationTimestamp": null
-      },
-      "spec": {
-        "containers": null
-      }
-    },
-    "updateStrategy": {}
-  },
   "status": {
     "observedGeneration": 1,
     "replicas": 0
   }
 }`
 
-var rs = `{
-  "metadata": {
-    "name": "stash-demo",
-    "namespace": "default"
-  },
-  "spec": {
-    "selector": {
-      "matchLabels": {
-        "app": "stash-demo"
-      }
-    },
-    "fileGroups": [
-      {
-        "path": "/source/data",
-        "retentionPolicyName": "keep-last-5"
-      }
-    ],
-    "backend": {
-      "local": {
-        "mountPath": "/safe/data",
-        "hostPath": {
-          "path": "/data/stash-test/restic-repo"
-        }
-      },
-      "storageSecretName": "stash-demo"
-    },
-    "schedule": "@every 1m",
-    "volumeMounts": [
-      {
-        "mountPath": "/source/data",
-        "name": "source-data"
-      }
-    ],
-    "retentionPolicies": [
-      {
-        "name": "keep-last-5",
-        "keepLast": 5,
-        "prune": true
-      }
-    ]
-  }
-}`
+var rs = `apiVersion: stash.appscode.com/v1alpha1
+kind: Restic
+metadata:
+  name: stash-demo
+  namespace: default
+spec:
+  selector:
+    matchLabels:
+      app: stash-demo
+  # type: offline
+  fileGroups:
+  - path: /source/data
+    retentionPolicyName: 'keep-last-5'
+  backend:
+    local:
+      mountPath: /safe/data
+      hostPath:
+        path: /data/stash-test/restic-repo
+    storageSecretName: local-secret
+  schedule: '@every 1m'
+ # paused: false
+  volumeMounts:
+  - mountPath: /source/data
+    name: source-data
+  retentionPolicies:
+  - name: 'keep-last-5'
+    keepLast: 5
+    prune: true`
 
 func transform(obj runtime.Object) (runtime.Object, error) {
 	var n int32 = 2
@@ -104,7 +78,7 @@ func transform(obj runtime.Object) (runtime.Object, error) {
 }
 
 func xyz() runtime.Codec {
-	mediaType := "application/json"
+	mediaType := "application/yaml"
 	info, ok := runtime.SerializerInfoForMediaType(legacyscheme.Codecs.SupportedMediaTypes(), mediaType)
 	if !ok {
 		panic("unsupported media type " + mediaType)
@@ -112,7 +86,7 @@ func xyz() runtime.Codec {
 	return info.Serializer
 }
 
-var Codec = xyz()
+var Serializer = xyz()
 
 type VersionedCodec struct {
 	scheme        *runtime.Scheme
@@ -137,11 +111,11 @@ func (c VersionedCodec) Encode(obj runtime.Object, w io.Writer) error {
 	}
 	c.scheme.Default(out)
 
-	return Codec.Encode(out, w)
+	return Serializer.Encode(out, w)
 }
 
 func (c VersionedCodec) Decode(data []byte, gvk *schema.GroupVersionKind, _ runtime.Object) (runtime.Object, *schema.GroupVersionKind, error) {
-	in, gvk, err := Codec.Decode(data, gvk, nil)
+	in, gvk, err := Serializer.Decode(data, gvk, nil)
 	if err != nil {
 		return nil, gvk, err
 	}
@@ -166,6 +140,50 @@ func (c VersionedCodec) Decode(data []byte, gvk *schema.GroupVersionKind, _ runt
 
 func main() {
 	scheme.AddToScheme(legacyscheme.Scheme)
+
+	raw := []byte(rs)
+	gvk := api.SchemeGroupVersion.WithKind("Restic")
+
+	cur, _, err := Serializer.Decode(raw, &gvk, nil)
+	if err != nil {
+		log.Fatal(err)
+	}
+	legacyscheme.Scheme.Default(cur)
+	r := cur.(*api.Restic)
+	fmt.Println("|" + r.Spec.Backend.Local.HostPath.String() + "|")
+
+	var buf bytes.Buffer
+	err = Serializer.Encode(cur, &buf)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println(buf.String())
+}
+
+func main78() {
+	scheme.AddToScheme(legacyscheme.Scheme)
+
+	raw := []byte(ss)
+	gvk := v1.SchemeGroupVersion.WithKind("StatefulSet")
+
+	cur, k2, err := Serializer.Decode(raw, &gvk, nil)
+	if err != nil {
+		log.Fatal(err)
+	}
+	legacyscheme.Scheme.Default(cur)
+	cur.GetObjectKind().SetGroupVersionKind(*k2)
+	fmt.Println(k2)
+
+	var buf bytes.Buffer
+	err = Serializer.Encode(cur, &buf)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println(buf.String())
+}
+
+func main6() {
+	scheme.AddToScheme(legacyscheme.Scheme)
 	//legacyscheme.Registry.AllPreferredGroupVersions()
 	//legacyscheme.Registry.EnabledVersions()
 
@@ -173,7 +191,7 @@ func main() {
 	gvk := api.SchemeGroupVersion.WithKind("Restic")
 
 	c := VersionedCodec{
-		scheme: legacyscheme.Scheme,
+		scheme:        legacyscheme.Scheme,
 		encodeVersion: api.SchemeGroupVersion,
 		decodeVersion: api.SchemeGroupVersion,
 	}
@@ -227,7 +245,7 @@ func main3() {
 
 	raw := []byte(ss)
 
-	srcObj, srcGVK, err := Codec.Decode(raw, nil, nil)
+	srcObj, srcGVK, err := Serializer.Decode(raw, nil, nil)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -261,7 +279,7 @@ func main3() {
 	legacyscheme.Scheme.Default(srcMod)
 
 	var mod bytes.Buffer
-	err = Codec.Encode(srcMod, &mod)
+	err = Serializer.Encode(srcMod, &mod)
 	if err != nil {
 		log.Fatal(err)
 	}
